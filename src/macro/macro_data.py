@@ -5,7 +5,38 @@ def get_gdp(fred):
     data = fred.get_series('GDP')
     data.rename("GDP",inplace=True)
     return data
+def get_real_gdp(fred):
+    data = fred.get_series('GDPC1')
+    data.rename("Real GDP",inplace=True)
+    return data
 
+def get_cpi(fred):
+    data = fred.get_series('CPIAUCSL')
+    data.rename("CPI for all Urban Consumers: All Items in U.S. City Average",inplace=True)
+    return data
+def get_core_cpi(fred):
+    data = fred.get_series('CPILFESL')
+    data.rename("CPI for all Urban Consumers: All Items less Food and Energy",inplace=True)
+    return data
+def get_cpi_components(fred):
+    data=pd.DataFrame()
+    data['All Items']=(fred.get_series('CPIAUCSL').pct_change(12)*100).tail(1)
+    data['Food and Beverages']=(fred.get_series('CPIFABSL').pct_change(12)*100).tail(1)
+    data['Housing']=(fred.get_series('CPIHOSSL').pct_change(12)*100).tail(1)
+    data['Apparel']=(fred.get_series('CPIAPPSL').pct_change(12)*100).tail(1)
+    data['Transportation']=(fred.get_series('CPITRNSL').pct_change(12)*100).tail(1)
+    data['Medical Care']=(fred.get_series('CPIMEDSL').pct_change(12)*100).tail(1)
+    data['Recreation']=(fred.get_series('CPIRECSL').pct_change(12)*100).tail(1)
+    data['Education and communication']=(fred.get_series('CPIEDUSL').pct_change(12)*100).tail(1)
+    data['Other good and services']=(fred.get_series('CPIOGSSL').pct_change(12)*100).tail(1)
+    data.reset_index(inplace=True)
+    data.rename(columns={"index": "Date"},inplace=True)
+    
+    data=pd.melt(data,id_vars=['Date'],value_vars=['All Items','Food and Beverages','Housing','Apparel',
+    'Transportation','Medical Care','Recreation','Education and communication','Other good and services'],
+    var_name='Components',value_name='Inflation')
+
+    return data
 
 def get_all_loans(fred):
     data = data = fred.get_series('TOTLL')
